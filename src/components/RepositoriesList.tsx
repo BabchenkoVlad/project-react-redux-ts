@@ -1,28 +1,33 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { actionCreators } from '../state';
-
+import { useTypedSelector } from '../hooks/useTypedSelector';
+import { useActions } from '../hooks/useActions';
 
 const RepositoriesList: React.FC = () => {
-  const [term, setTerm] = useState('');
-  const dispatch = useDispatch();
+    const [term, setTerm] = useState('');
+    const { searchRepositories } = useActions();
+    const { data, error, loading } = useTypedSelector(
+        (state) => state.repositories
+    );
+
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        searchRepositories(term);
+    };
 
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    dispatch(actionCreators.searchRepositories(term) as any)
-  };
-
-
-  return (
+    return (
     <div>
-      <form onSubmit={onSubmit}>
-        <input value={term} onChange={e => setTerm(e.target.value)} />
-        <button>Search</button>
-      </form>
+        <form onSubmit={onSubmit}>
+            <input value={term} onChange={e => setTerm(e.target.value)} />
+            <button>Search</button>
+        </form>
+		{error && <h3>{error}</h3>}
+		{loading && <h3>Loading...</h3>}
+		{!error && !loading && data.map((elem) => <div>{elem}</div>)}
     </div>
-  )
+
+    )
 }
 
 export default RepositoriesList;
